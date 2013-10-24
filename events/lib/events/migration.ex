@@ -1,7 +1,5 @@
 defmodule Events.Migration do
 
-  require Events.Operation
-
   @events_count 10
   @db_name :core_push_development
 
