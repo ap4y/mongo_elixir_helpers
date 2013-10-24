@@ -20,7 +20,7 @@ defmodule Events.Migration do
     end)
   end
 
-  defp process_cursor(cursor, 0), do: :mongo.close(cursor)
+  defp process_cursor(cursor, 0), do: :mongo.close_cursor(cursor)
   defp process_cursor(cursor, index) do
     case :mongo.next(cursor) do
     { data } ->
