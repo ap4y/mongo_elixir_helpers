@@ -13,7 +13,9 @@ defmodule Events do
   def run(pid // self) do
     pool = :resource_pool.new(:mongo.connect_factory(:localhost), @max_connections)
     (1..@max_processes)
-    |> Enum.map(fn(_) -> spawn(Events.Migration, :run, [ pid, pool ]) end)
+    |> Enum.map(fn(idx) ->
+      spawn(Events.Migration, :run, [ pid, pool, {}, idx - 1 ]) 
+    end)
     |> monitor_process
     :resource_pool.close(pool)
   end

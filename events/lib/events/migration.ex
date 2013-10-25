@@ -1,14 +1,14 @@
 defmodule Events.Migration do
 
-  @events_count 10_000
+  @events_count 1_000
   @db_name :core_push_development
 
   @app_created_at {1349, 665482, 0}
 
-  def run(pid, pool, query // {}) do
+  def run(pid, pool, query // {}, index // 0) do
     case :resource_pool.get(pool) do
       { :ok, connection } ->
-        { time, _ } = :timer.tc(__MODULE__, :migrate, [connection, query])
+        { time, _ } = :timer.tc(__MODULE__, :migrate, [connection, query, index * @events_count])
         pid <- { :finished, self, time }
       { :error, reason } -> IO.puts "Failed to connect #{reason}"
     end
