@@ -1,3 +1,3 @@
 [ "bson": {:git, "git://github.com/mongodb/bson-erlang", "6d3cc910eac6d4c21402427b41c411e201eca424", [{:ref, "HEAD"}]},
-  "mongodb": {:git, "git://github.com/mururu/mongodb-erlang.git", "4c640620bf2ab82d9be85d527a229cd6b60a4c02", []}
-]
+  "meck": {:git, "git://github.com/eproxus/meck.git", "1286aba1cb6bbd6c9fc3f817740758b224843ee7", []},
+  "mongodb": {:git, "git://github.com/mururu/mongodb-erlang.git", "4c640620bf2ab82d9be85d527a229cd6b60a4c02", []} ]
