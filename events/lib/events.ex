@@ -2,7 +2,8 @@ defmodule Events do
   use Application.Behaviour
 
   @max_connections 100
-  @max_processes 10
+  @max_processes 100
+  @host :"192.168.178.30"
 
   # See http://elixir-lang.org/docs/stable/Application.Behaviour.html
   # for more information on OTP Applications
@@ -10,14 +11,27 @@ defmodule Events do
     Events.Supervisor.start_link
   end
 
-  def run(pid // self) do
-    pool = :resource_pool.new(:mongo.connect_factory(:localhost), @max_connections)
+  def main do
+    pool = :resource_pool.new(:mongo.connect_factory(@host), @max_connections)
+    Node.connect(:"one@192.168.178.30")
+    Node.connect(:"one@192.168.178.31")
+
+    processes = Node.list
+    |> Enum.reduce([], fn(node, acc) ->
+      acc ++ start_node(node, pool)
+    end)
+
+    processes
+    |> monitor_process
+
+    :resource_pool.close(pool)
+  end
+
+  defp start_node(node, pool) do
     (1..@max_processes)
     |> Enum.map(fn(idx) ->
-      spawn(Events.Migration, :run, [ pid, pool, {}, idx - 1 ]) 
+      Node.spawn(node, Events.Migration, :run, [ self, pool, {}, idx - 1 ])
     end)
-    |> monitor_process
-    :resource_pool.close(pool)
   end
 
   defp monitor_process(processes) do

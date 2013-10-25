@@ -1,6 +1,6 @@
 defmodule Events.Migration do
 
-  @events_count 1_000
+  @events_count 5_000
   @db_name :core_push_development
 
   @app_created_at {1349, 665482, 0}
