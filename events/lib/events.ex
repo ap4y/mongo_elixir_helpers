@@ -11,10 +11,9 @@ defmodule Events do
     Events.Supervisor.start_link
   end
 
-  def main do
-    pool = :resource_pool.new(:mongo.connect_factory(@host), @max_connections)
-    Node.connect(:"one@192.168.178.30")
-    Node.connect(:"one@192.168.178.31")
+  def main(host // @host, node // :"one@192.168.178.30") do
+    pool = :resource_pool.new(:mongo.connect_factory(host), @max_connections)
+    Node.connect(node)
 
     processes = Node.list
     |> Enum.reduce([], fn(node, acc) ->
