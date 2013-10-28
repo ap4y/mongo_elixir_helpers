@@ -2,7 +2,7 @@ defmodule Events do
   use Application.Behaviour
 
   @max_connections 100
-  @max_processes 100
+  @max_processes 1
   @host :"192.168.178.30"
 
   # See http://elixir-lang.org/docs/stable/Application.Behaviour.html
@@ -13,23 +13,33 @@ defmodule Events do
 
   def main(host // @host, node // :"one@192.168.178.30") do
     pool = :resource_pool.new(:mongo.connect_factory(host), @max_connections)
-    Node.connect(node)
 
-    processes = Node.list
-    |> Enum.reduce([], fn(node, acc) ->
-      acc ++ start_node(node, pool)
-    end)
+    # Node.connect(node)
+    # processes = Node.list
+    # |> Enum.reduce([], fn(node, acc) ->
+    #   acc ++ start_node(node, pool)
+    # end)
 
-    processes
+    # processes
+    # |> monitor_process
+
+    start_processes(pool)
     |> monitor_process
 
     :resource_pool.close(pool)
   end
 
-  defp start_node(node, pool) do
+  # defp start_node(node, pool) do
+  #   (1..@max_processes)
+  #   |> Enum.map(fn(idx) ->
+  #     Node.spawn(node, Events.Migration, :run, [ self, pool, {}, idx - 1 ])
+  #   end)
+  # end
+
+  defp start_processes(pool) do
     (1..@max_processes)
     |> Enum.map(fn(idx) ->
-      Node.spawn(node, Events.Migration, :run, [ self, pool, {}, idx - 1 ])
+      spawn(Events.Migration, :run, [ self, pool, {}, idx - 1 ])
     end)
   end
 
