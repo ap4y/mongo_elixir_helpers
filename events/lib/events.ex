@@ -1,9 +1,9 @@
 defmodule Events do
   use Application.Behaviour
 
-  @max_connections 100
-  @max_processes 1
-  @host :"192.168.178.30"
+  @max_connections 1_000
+  @max_processes 10
+  @host :localhost
 
   # See http://elixir-lang.org/docs/stable/Application.Behaviour.html
   # for more information on OTP Applications
