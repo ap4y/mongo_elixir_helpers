@@ -11,6 +11,10 @@ defmodule MigrationTest do
     :created_at, Events.DateUtils.datetime_to_unixtime({{2012,12,05},{0,0,0}}),
   }
 
+  @apps [
+    [ _id: {"foo"}, created_at: {1349, 665482, 0} ]
+  ]
+
   test "it correctly iterates through cursor" do
     :meck.new(:mongo)
     :meck.expect(:mongo, :next, fn(_) -> {@document} end)
@@ -30,7 +34,7 @@ defmodule MigrationTest do
       }
     end)
 
-    process_cursor("foo", 2)
+    process_cursor("foo", @apps, 2)
 
     assert :meck.validate(:mongo) == true
   end
