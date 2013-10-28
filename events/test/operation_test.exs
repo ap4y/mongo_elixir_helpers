@@ -14,6 +14,10 @@ defmodule OperationTest do
     assert upsert(777, nil, @event_date, 100, true) == { :error }
   end
 
+  test "event with with value bigger than maximum should return :error" do
+    assert upsert(1000, nil, @event_date, 10000, true) == { :error }
+  end
+
   test "app open event should produce correct find and update clause" do
     { find, update } = upsert(1100, {"foo"}, @event_date, 100, true)
     assert find == {

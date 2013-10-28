@@ -2,6 +2,7 @@ defmodule Events.Operation do
 
   @event_open_code 1100
   @event_session_code 1000
+  @max_value 9000
 
   def upsert(@event_open_code, parent_id, {date, {hour, minute, _}}, _value, _with_session)
   when parent_id != nil do
@@ -13,7 +14,7 @@ defmodule Events.Operation do
   end
 
   def upsert(@event_session_code, parent_id, {date, {hour, minute, _}}, value, true)
-  when parent_id != nil do
+  when parent_id != nil and value <= @max_value do
     update = {
       "$inc", { "h.#{hour}.s", 1 },
       "$inc", { "h.#{hour}.t", value },
