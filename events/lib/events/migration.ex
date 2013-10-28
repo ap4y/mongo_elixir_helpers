@@ -1,6 +1,7 @@
 defmodule Events.Migration do
 
   @events_count 5_000
+  @log_batch_size 1_000
   @db_name :core_push_development
 
   @app_created_at {1349, 665482, 0}
@@ -27,6 +28,7 @@ defmodule Events.Migration do
     { data } ->
       :bson.fields(data)
       |> parse_document
+      if (rem(index, @log_batch_size) == 0), do: IO.puts "#{index}"
       process_cursor(cursor, index - 1)
     _ -> :mongo.close_cursor(cursor)
     end
