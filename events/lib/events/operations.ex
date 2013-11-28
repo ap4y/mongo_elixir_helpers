@@ -28,10 +28,36 @@ defmodule Events.Operation do
 
   def upsert(_code, _parent_id, _date, _value, _with_session, acc), do: acc
 
+  def csv_string(doc, date, value, device_id)
+  when device_id != nil and value <= @max_value do
+    { doc_id }    = doc[:_id]
+    { app_id }    = doc[:app_id]
+    { device_id } = device_id
+
+    id        = Events.ObjectId.objectid_to_string(doc_id)
+    app_id    = Events.ObjectId.objectid_to_string(app_id)
+    device_id = Events.ObjectId.objectid_to_string(device_id)
+
+    {{year, month, day}, {hour, minutes, seconds}} = date
+    args = [year, month, day, hour, minutes, seconds]
+    d_string = :io_lib.format("~B-~2.10.0B-~2.10.0B ~2.10.0B:~2.10.0B:~2.10.0B", args)
+
+    "#{id},#{app_id},#{device_id},,#{doc[:code]},#{d_string},#{value},,\n"
+  end
+  def csv_string(doc, _date, value, device_id) do
+    { doc_id } = doc[:_id]
+    if !device_id do
+      IO.puts "Missing device_id for document with id #{Events.ObjectId.objectid_to_string(doc_id)}"
+    # else
+    #   IO.puts "Large session time (#{value}) for document with id #{Events.ObjectId.objectid_to_string(doc_id)}"
+    end
+    ""
+  end
+
   defp merge_lists(id, data, update) do
     current  = data[id] || []
-    merged   = Keyword.merge(current, update, fn (k, v1, v2) -> v1 + v2 end)
-    filtered = Enum.filter(data, fn {cid, value} -> cid != id end)
+    merged   = Keyword.merge(current, update, fn (_k, v1, v2) -> v1 + v2 end)
+    filtered = Enum.filter(data, fn {cid, _value} -> cid != id end)
     filtered ++ [{ id, merged }]
   end
 

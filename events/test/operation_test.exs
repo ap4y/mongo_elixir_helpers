@@ -4,6 +4,11 @@ defmodule OperationTest do
   import Events.Operation
 
   @event_date {{2012, 03, 03},{10, 15, 25}}
+  @document [
+    _id: {"bar"},
+    app_id: {"foo"},
+    code: 1000
+  ]
 
   test "event with nil parent_id should return accumulator value" do
     assert upsert(1000, nil, @event_date, 100, true, [ 'foo' ]) == [ 'foo' ]
@@ -98,5 +103,17 @@ defmodule OperationTest do
         {:"m.10.15.t", 240}
       ]
     }]
+  end
+
+  test "events with large value return empty string" do
+    assert csv_string(@document, @event_date, 10000, {'foo'}) == ""
+  end
+
+  test "events without device_id return empty string" do
+    assert csv_string(@document, @event_date, 1000, nil) == ""
+  end
+
+  test "events return correct csv string" do
+    assert csv_string(@document, @event_date, 1000, {"baz"}) == "626172,666f6f,62617a,,1000,2012-03-03 10:15:25,1000,,\n"
   end
 end
