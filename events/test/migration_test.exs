@@ -41,32 +41,46 @@ defmodule MigrationTest do
       assert cursor == "foo"
     end)
     :meck.expect(:mongo, :repsert, fn(collection, find, update) ->
-      case collection do
-        :"app_events.daily" ->
-          assert find == {
-            :_id, {:p, {"foo"}, :d, Events.DateUtils.datetime_to_unixtime({{2012,11,04},{0,0,0}}) }
-            }
+      case find do
+        { :_id, {:p, {"bar"}, :d, {1330, 732800, 0}} } ->
           assert update == {
-            "$inc", {"h.10.s", 1},
-            "$inc", {"h.10.t", 100},
-            "$inc", {"m.10.15.s", 1},
-            "$inc", {"m.10.15.t", 100}
-            }
-        :"device_events.daily" ->
-          assert find == {
-            :_id, {:p, {"bar"}, :d, Events.DateUtils.datetime_to_unixtime({{2012,11,04},{0,0,0}}) }
-            }
+            "$inc", {"h.10.s", 11},
+            "$inc", {"h.10.t", 110},
+            "$inc", {"m.10.15.s", 13},
+            "$inc", {"m.10.15.t", 140}
+          }
+        { :_id, {:p, {"foo"}, :d, {1351, 987200, 0}} } ->
           assert update == {
-            "$inc", {"h.10.s", 1},
-            "$inc", {"h.10.t", 100},
-            "$inc", {"m.10.15.s", 1},
-            "$inc", {"m.10.15.t", 100}
-            }
+            "$inc", {"h.10.s", 13},
+            "$inc", {"h.10.t", 310},
+            "$inc", {"m.10.15.s", 15},
+            "$inc", {"m.10.15.t", 340}
+          }
         _ -> flunk "Wrong collection"
       end
     end)
 
-    process_cursor("foo", @apps, 2)
+    initial = [
+      {
+        [p: {"foo"}, d: {1351, 987200, 0}],
+        [
+          {:"h.10.s", 11},
+          {:"h.10.t", 110},
+          {:"m.10.15.s", 13},
+          {:"m.10.15.t", 140}
+        ]
+      },
+      {
+        [p: {"bar"}, d: {1330, 732800, 0}],
+        [
+          {:"h.10.s", 11},
+          {:"h.10.t", 110},
+          {:"m.10.15.s", 13},
+          {:"m.10.15.t", 140}
+        ]
+      }
+    ]
+    process_cursor("foo", @apps, initial, 2)
 
     assert :meck.validate(:mongo) == true
   end
@@ -76,37 +90,40 @@ defmodule MigrationTest do
     :meck.expect(:mongo, :close_cursor, fn(cursor) ->
       assert cursor == "foo"
     end)
+
     :meck.expect(:mongo, :repsert, fn(collection, find, update) ->
-      case collection do
-        :"app_events.daily" ->
-          assert find == {
-            :_id, {:p, {"foo"}, :d, Events.DateUtils.datetime_to_unixtime({{2012,11,04},{0,0,0}}) }
-            }
+      case find do
+        { :_id, {:p, {"bar"}, :d, {1330, 732800, 0}} } ->
           assert update == {
-            "$inc", {"h.10.c", 1},
-            "$inc", {"m.10.15.c", 1}
-            }
-        :"device_events.daily" ->
-          assert find == {
-            :_id, {:p, {"bar"}, :d, Events.DateUtils.datetime_to_unixtime({{2012,11,04},{0,0,0}}) }
-            }
+            "$inc", {"h.10.c", 10},
+            "$inc", {"m.10.15.c", 12}
+          }
+        { :_id, {:p, {"foo"}, :d, {1351, 987200, 0}} } ->
           assert update == {
-            "$inc", {"h.10.c", 1},
-            "$inc", {"m.10.15.c", 1}
-            }
-        :"notification_events.daily" ->
-          assert find == {
-            :_id, {:p, {"baz"}, :d, Events.DateUtils.datetime_to_unixtime({{2012,11,04},{0,0,0}}) }
-            }
-          assert update == {
-            "$inc", {"h.10.c", 1},
-            "$inc", {"m.10.15.c", 1}
-            }
+            "$inc", {"h.10.c", 12},
+            "$inc", {"m.10.15.c", 14}
+          }
         _ -> flunk "Wrong collection"
       end
     end)
 
-    process_cursor("foo", @apps, 2)
+    initial = [
+      {
+        [p: {"foo"}, d: {1351, 987200, 0}],
+        [
+          {:"h.10.c", 10},
+          {:"m.10.15.c", 12}
+        ]
+      },
+      {
+        [p: {"bar"}, d: {1330, 732800, 0}],
+        [
+          {:"h.10.c", 10},
+          {:"m.10.15.c", 12}
+        ]
+      }
+    ]
+    process_cursor("foo", @apps, initial, 2)
 
     assert :meck.validate(:mongo) == true
   end
