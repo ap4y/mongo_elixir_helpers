@@ -4,6 +4,7 @@ defmodule MigrationTest do
   import Events.Migration
 
   @document {
+    :_id, {"roku"},
     :app_id, {"foo"},
     :device_id, {"bar"},
     :notification_id, {"baz"},
@@ -14,6 +15,7 @@ defmodule MigrationTest do
   }
 
   @document2 {
+    :_id, {"roku"},
     :app_id, {"foo"},
     :device_id, {"bar"},
     :notification_id, {"baz"},
@@ -29,10 +31,12 @@ defmodule MigrationTest do
 
   setup do
     :meck.new(:mongo)
+    :meck.new(File)
   end
 
   teardown do
     :meck.unload(:mongo)
+    :meck.unload(File)
   end
 
   test "it correctly iterates through cursor. app session mock" do
@@ -40,6 +44,7 @@ defmodule MigrationTest do
     :meck.expect(:mongo, :close_cursor, fn(cursor) ->
       assert cursor == "foo"
     end)
+
     :meck.expect(:mongo, :repsert, fn(collection, find, update) ->
       case find do
         { :_id, {:p, {"bar"}, :d, {1330, 732800, 0}} } ->
@@ -58,6 +63,10 @@ defmodule MigrationTest do
           }
         _ -> flunk "Wrong collection"
       end
+    end)
+
+    :meck.expect(File, :write, fn(_, csv, _) ->
+      assert csv == "726f6b75,666f6f,626172,,1000,2012-11-04 10:15:23,100,,\n726f6b75,666f6f,626172,,1000,2012-11-04 10:15:23,100,,\n"
     end)
 
     initial = [
@@ -80,7 +89,7 @@ defmodule MigrationTest do
         ]
       }
     ]
-    process_cursor("foo", @apps, initial, 2)
+    process_cursor("foo", @apps, initial, "", 2)
 
     assert :meck.validate(:mongo) == true
   end
@@ -107,6 +116,10 @@ defmodule MigrationTest do
       end
     end)
 
+    :meck.expect(File, :write, fn(_, csv, _) ->
+      assert csv == "726f6b75,666f6f,626172,,1100,2012-11-04 10:15:23,100,,\n726f6b75,666f6f,626172,,1100,2012-11-04 10:15:23,100,,\n"
+    end)
+
     initial = [
       {
         [p: {"foo"}, d: {1351, 987200, 0}],
@@ -123,7 +136,7 @@ defmodule MigrationTest do
         ]
       }
     ]
-    process_cursor("foo", @apps, initial, 2)
+    process_cursor("foo", @apps, initial, "", 2)
 
     assert :meck.validate(:mongo) == true
   end
