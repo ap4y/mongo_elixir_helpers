@@ -8,7 +8,7 @@ defmodule ObjectIdTest do
   end
 
   test "it converts objectid to string" do
-    assert objectid_to_string(<<80,114,66,202,174,211,86,75,12,0,0,28>>) == "507242CAAED3564B0C00001C"
+    assert objectid_to_string(<<80,114,66,202,174,211,86,75,12,0,0,28>>) == "507242caaed3564b0c00001c"
   end
 
 end
