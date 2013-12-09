@@ -3,7 +3,7 @@ defmodule Events do
 
   @max_connections 1_000
   @max_processes 10
-  @host :localhost
+  @host :"10.0.1.100"
 
   # See http://elixir-lang.org/docs/stable/Application.Behaviour.html
   # for more information on OTP Applications
@@ -11,8 +11,8 @@ defmodule Events do
     Events.Supervisor.start_link
   end
 
-  def main(host // @host, node // :"one@192.168.178.30") do
-    pool = :resource_pool.new(:mongo.connect_factory(host), @max_connections)
+  def main(_) do
+    pool = :resource_pool.new(:mongo.connect_factory(@host), @max_connections)
 
     # Node.connect(node)
     # processes = Node.list

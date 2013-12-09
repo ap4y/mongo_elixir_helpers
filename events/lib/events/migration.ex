@@ -1,8 +1,9 @@
 defmodule Events.Migration do
 
-  @events_count 100_000
-  @log_batch_size 100_000
-  @db_name :core_push_development
+  @events_count 37_300_000
+  @batch_size 1000
+  @log_batch_size 10_000
+  @db_name :core_push
 
   def run(pid, pool, query // {}, index // 0) do
     case :resource_pool.get(pool) do
@@ -14,7 +15,7 @@ defmodule Events.Migration do
   end
 
   def migrate(connection, query, skip // 0, limit // @events_count) do
-    IO.puts "starting #{inspect self}"
+    IO.puts "starting #{inspect self}, #{skip}, #{limit}"
     :mongo.do(:unsafe, :master, connection, @db_name, fn ->
       apps = :mongo.find(:apps, {}, { :created_at, 1 })
       |> :mongo.rest
