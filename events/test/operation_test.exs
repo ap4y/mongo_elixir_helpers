@@ -106,14 +106,34 @@ defmodule OperationTest do
   end
 
   test "events with large value return empty string" do
-    assert csv_string(@document, @event_date, 10000, {'foo'}) == ""
+    document = [
+      _id:        {"bar"},
+      app_id:     {"foo"},
+      device_id:  {"baz"},
+      code:       1000,
+      value:      10000
+    ]
+    assert csv_string(document, @event_date) == ""
   end
 
   test "events without device_id return empty string" do
-    assert csv_string(@document, @event_date, 1000, nil) == ""
+    document = [
+      _id:     {"bar"},
+      app_id:  {"foo"},
+      code:    1000,
+      value:   100
+    ]
+    assert csv_string(document, @event_date) == ""
   end
 
   test "events return correct csv string" do
-    assert csv_string(@document, @event_date, 1000, {"baz"}) == "626172,666f6f,62617a,,1000,2012-03-03 10:15:25,1000,,\n"
+    document = [
+      _id:        {"bar"},
+      app_id:     {"foo"},
+      device_id:  {"baz"},
+      code:       1000,
+      value:      1000
+    ]
+    assert csv_string(document, @event_date) == "666f6f,62617a,,1000,2012-03-03 10:15:25,1000,,\n"
   end
 end

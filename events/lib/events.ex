@@ -2,7 +2,7 @@ defmodule Events do
   use Application.Behaviour
 
   @max_connections 1_000
-  @max_processes 10
+  @max_processes 4
   @host :"10.0.1.100"
 
   # See http://elixir-lang.org/docs/stable/Application.Behaviour.html

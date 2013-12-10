@@ -28,13 +28,19 @@ defmodule Events.Operation do
 
   def upsert(_code, _parent_id, _date, _value, _with_session, acc), do: acc
 
-  def csv_string(doc, date, value, device_id)
-  when device_id != nil and value <= @max_value do
-    { doc_id }    = doc[:_id]
-    { app_id }    = doc[:app_id]
-    { device_id } = device_id
+  def csv_string(doc, date) do
+    if doc[:device_id] != nil and doc[:value] <= @max_value do
+      csv_valid_string(doc, date)
+    else
+      ""
+    end
+  end
 
-    id        = Events.ObjectId.objectid_to_string(doc_id)
+  defp csv_valid_string(doc, date) do
+    value         = doc[:value]
+    { device_id}  = doc[:device_id]
+    { app_id }    = doc[:app_id]
+
     app_id    = Events.ObjectId.objectid_to_string(app_id)
     device_id = Events.ObjectId.objectid_to_string(device_id)
 
@@ -42,16 +48,7 @@ defmodule Events.Operation do
     args = [year, month, day, hour, minutes, seconds]
     d_string = :io_lib.format("~B-~2.10.0B-~2.10.0B ~2.10.0B:~2.10.0B:~2.10.0B", args)
 
-    "#{id},#{app_id},#{device_id},,#{doc[:code]},#{d_string},#{value},,\n"
-  end
-  def csv_string(doc, _date, value, device_id) do
-    { doc_id } = doc[:_id]
-    if !device_id do
-      IO.puts "Missing device_id for document with id #{Events.ObjectId.objectid_to_string(doc_id)}"
-    # else
-    #   IO.puts "Large session time (#{value}) for document with id #{Events.ObjectId.objectid_to_string(doc_id)}"
-    end
-    ""
+    "#{app_id},#{device_id},,#{doc[:code]},#{d_string},#{value},,\n"
   end
 
   defp merge_lists(id, data, update) do
