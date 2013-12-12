@@ -136,4 +136,15 @@ defmodule OperationTest do
     ]
     assert csv_string(document, @event_date) == "666f6f,62617a,,1000,2012-03-03 10:15:25,1000,,\n"
   end
+
+  test "app open events return correct csv string" do
+    document = [
+      _id:        {"bar"},
+      app_id:     {"foo"},
+      device_id:  {"baz"},
+      code:       1100
+    ]
+    assert csv_string(document, @event_date) == "666f6f,62617a,,1100,2012-03-03 10:15:25,,,\n"
+  end
+
 end

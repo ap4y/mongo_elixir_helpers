@@ -1,5 +1,6 @@
 defmodule Events.Operation do
 
+
   @event_open_code 1100
   @event_session_code 1000
   @max_value 9000
@@ -29,10 +30,10 @@ defmodule Events.Operation do
   def upsert(_code, _parent_id, _date, _value, _with_session, acc), do: acc
 
   def csv_string(doc, date) do
-    if doc[:device_id] != nil and doc[:value] <= @max_value do
-      csv_valid_string(doc, date)
-    else
+    if doc[:device_id] == nil or (doc[:value] > @max_value and doc[:code] == @event_session_code) do
       ""
+    else
+      csv_valid_string(doc, date)
     end
   end
 
