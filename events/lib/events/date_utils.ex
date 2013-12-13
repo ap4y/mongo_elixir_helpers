@@ -8,7 +8,7 @@ defmodule Events.DateUtils do
   def fixup_event_date(event_date, app_created_at, event_created_at) do
     cond do
       :bson.unixtime_to_secs(event_date) < :bson.unixtime_to_secs(app_created_at) ->
-        :calendar.now_to_universal_time(app_created_at)
+        :calendar.now_to_universal_time(event_created_at)
       :bson.unixtime_to_secs(event_date) > :bson.unixtime_to_secs(event_created_at) ->
         :calendar.now_to_universal_time(event_created_at)
       true ->
