@@ -1,7 +1,7 @@
 defmodule Events.Migration do
 
-  @events_count 1_000_000
-  @log_batch_size 100_000
+  @events_count 57_000_000
+  @log_batch_size 1_000_000
   @db_name :core_push
 
   def run(pid, pool, query // {}, index // 0) do
