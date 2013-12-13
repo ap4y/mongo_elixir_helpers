@@ -73,7 +73,7 @@ defmodule Events.Migration do
     # c_csv = csv <> Events.Operation.csv_string(doc, date)
     { c_counters, "" }
   end
-  defp parse_document(_doc, _app_created_at, _acc, _csv), do: {[] , ""}
+  defp parse_document(_doc, _app_created_at, acc, csv), do: { acc, csv }
 
   defp write_csv(csv, index) do
     File.write("csv/events_#{inspect self}_#{index}.csv", csv, [ :append ])
