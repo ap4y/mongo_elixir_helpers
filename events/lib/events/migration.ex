@@ -28,7 +28,7 @@ defmodule Events.Migration do
   def process_cursor(cursor, _apps, acc, csv, 0) do
     :mongo.close_cursor(cursor)
     perform_upsert(acc)
-    # write_csv(csv, 0)
+    write_csv(csv, 0)
   end
   def process_cursor(cursor, apps, acc, csv, index) do
     case :mongo.next(cursor) do
@@ -41,7 +41,9 @@ defmodule Events.Migration do
 
       if (rem(index, @log_batch_size) == 0 && index != @events_count) do
         IO.puts "#{inspect self}:#{index}"
-        # write_csv(c_csv, index)
+        perform_upsert(c_counters)
+        c_counters = []
+        write_csv(c_csv, index)
         c_csv = ""
       end
       process_cursor(cursor, apps, c_counters, c_csv, index - 1)
@@ -49,7 +51,7 @@ defmodule Events.Migration do
     _ ->
       :mongo.close_cursor(cursor)
       perform_upsert(acc)
-      # write_csv(csv, 0)
+      write_csv(csv, 0)
     end
   end
 
@@ -70,8 +72,8 @@ defmodule Events.Migration do
     value = doc[:value]
 
     c_counters = Events.Operation.upsert(code, doc[:app_id], date, value, true, acc)
-    # c_csv = csv <> Events.Operation.csv_string(doc, date)
-    { c_counters, "" }
+    c_csv = csv <> Events.Operation.csv_string(doc, date)
+    { c_counters, c_csv }
   end
   defp parse_document(_doc, _app_created_at, acc, csv), do: { acc, csv }
 
