@@ -1,7 +1,7 @@
 defmodule Events.Migration do
 
-  @events_count 57_000_000
-  @log_batch_size 1_000_000
+  @events_count 700_000
+  @log_batch_size 100_000
   @db_name :core_push
 
   def run(pid, pool, query // {}, index // 0) do
@@ -41,8 +41,8 @@ defmodule Events.Migration do
 
       if (rem(index, @log_batch_size) == 0 && index != @events_count) do
         IO.puts "#{inspect self}:#{index}"
-        perform_upsert(c_counters)
-        c_counters = []
+        # perform_upsert(c_counters)
+        # c_counters = []
         write_csv(c_csv, index)
         c_csv = ""
       end
@@ -63,6 +63,30 @@ defmodule Events.Migration do
       end)
       |> list_to_tuple
       :mongo.repsert(:"app_events.daily", find, update)
+
+      { p_id } = id[:p]
+      update_log = Enum.reduce(values, "", fn({ key, value }, acc) ->
+        acc <> "      '#{key}': #{value},\n"
+      end)
+      |> String.strip
+
+      event_log = """
+      db.app_events.daily.update(
+        {
+          _id: {
+            p: ObjectId('#{Events.ObjectId.objectid_to_string(p_id)}'),
+            d: new Date(#{:bson.unixtime_to_secs(id[:d])*1000})
+          }
+        },
+        {
+          $inc: {
+            #{update_log}
+          }
+        },
+        { upsert: true}
+      )
+      """
+      File.write("migrations/migration_#{inspect self}.js", event_log, [ :append ])
     end)
   end
 
