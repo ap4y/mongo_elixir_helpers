@@ -1,7 +1,7 @@
 defmodule Events do
   use Application.Behaviour
 
-  @max_connections 10
+  @max_connections 1000
   @max_processes 8
   @host :"10.0.1.100"
 
