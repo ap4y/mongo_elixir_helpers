@@ -16,7 +16,7 @@ defmodule Events.Operation do
   end
 
   def upsert(@event_session_code, parent_id, {date, {hour, minute, _}}, value, true, acc)
-  when parent_id != nil and value <= @max_value do
+  when parent_id != nil and value >= 0 and value <= @max_value do
     update = [
       { :"h.#{hour}.s", 1 },
       { :"h.#{hour}.t", value },
@@ -30,7 +30,7 @@ defmodule Events.Operation do
   def upsert(_code, _parent_id, _date, _value, _with_session, acc), do: acc
 
   def csv_string(doc, date) do
-    if doc[:device_id] == nil or (doc[:value] > @max_value and doc[:code] == @event_session_code) do
+    if doc[:device_id] == nil or ((doc[:value] < 0 or doc[:value] > @max_value) and doc[:code] == @event_session_code) do
       ""
     else
       csv_valid_string(doc, date)
